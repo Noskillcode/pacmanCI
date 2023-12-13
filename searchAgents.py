@@ -38,7 +38,7 @@ from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
 from game import Actions
-import util
+from util import manhattanDistance
 import time
 import search
 import pacman
@@ -298,16 +298,14 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return (self.startingPosition, ())
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        return len(state[1]) == len(self.corners)
+    
     def getSuccessors(self, state: Any):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -320,15 +318,21 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+            ((x,y), cs) = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
 
-            "*** YOUR CODE HERE ***"
+            if not self.walls[nextx][nexty]:
+                nextPos = (nextx, nexty)
+                if nextPos in self.corners: 
+                    if nextPos not in cs:
+                        cs = cs + (nextPos,)
+                nextState = (nextPos, cs)
+                successors.append( ( nextState, action, 1) )
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -363,6 +367,23 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
+    (pos, cs) = state
+    Cs = [c for c in corners if c not in cs]
+    num = len(Cs)
+    totalDist = 0
+    for x in range(0, num):
+        smallestDist = 999999
+        closestC = None
+        for c in Cs:
+            dist = manhattanDistance(pos, c)
+            if dist < smallestDist:
+                smallestDist = dist
+                closestC = c
+        Cs.remove(closestC)
+        pos = closestC
+        totalDist += smallestDist
+
+    return totalDist
     "*** YOUR CODE HERE ***"
     return 0 # Default to trivial solution
 
