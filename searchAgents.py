@@ -34,11 +34,13 @@ description for details.
 Good luck and happy searching!
 """
 
+from turtle import pos
 from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
 from game import Actions
 from util import manhattanDistance
+from util import normalize
 import time
 import search
 import pacman
@@ -479,7 +481,34 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    def getdist(food):
+        return manhattanDistance(food, position)
+
+    if len(problem.heuristicInfo) == 0: 
+        foodList = foodGrid.asList()
+        foodList.sort(key=getdist)
+        problem.heuristicInfo['orderedFood'] = foodList
+
+        if len(foodList) == 0:
+            problem.heuristicInfo['orderedFood'] = [position]
+
+    closestFood = problem.heuristicInfo['orderedFood'][-1]
+
+    if position == closestFood:
+        problem.heuristicInfo['orderedFood'].pop()
+        problem.heuristicInfo['orderedFood'].sort(key=getdist)
+
+        foodCount = len(problem.heuristicInfo['orderedFood'])
+        
+        if foodCount == 0:
+            problem.heuristicInfo['orderedFood'] = [position]
+
+        closestFood = problem.heuristicInfo['orderedFood'][-1]
+
+    minDist = manhattanDistance(closestFood,position)  
+
+    return minDist
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
