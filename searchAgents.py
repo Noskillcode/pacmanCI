@@ -484,7 +484,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     "*** YOUR CODE HERE ***"
 
     def getdist(food): #Sorting function
-        return manhattanDistance(food, position)
+        return mazeDistance(food, position, problem.startingGameState)
 
     if len(problem.heuristicInfo) == 0: #Initialize heuristicInfo
         foodList = foodGrid.asList()
