@@ -539,6 +539,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        # Uses astar to find the closest food
         return search.astar(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -575,7 +576,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        return (x,y) in self.food.asList()
+        return (x,y) in self.food.asList() # Returns whether pacman is on a location containing food
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
