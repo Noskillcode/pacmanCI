@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+from audioop import reverse
 from turtle import pos
 from typing import List, Tuple, Any
 from game import Directions
@@ -482,31 +483,27 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
 
-    def getdist(food):
+    def getdist(food): #Sorting function
         return manhattanDistance(food, position)
 
-    if len(problem.heuristicInfo) == 0: 
+    if len(problem.heuristicInfo) == 0: #Initialize heuristicInfo
         foodList = foodGrid.asList()
-        foodList.sort(key=getdist)
+        foodList.sort(key=getdist, reverse=True)
         problem.heuristicInfo['orderedFood'] = foodList
 
-        if len(foodList) == 0:
+        if len(foodList) == 0: #Checks if there is no food
             problem.heuristicInfo['orderedFood'] = [position]
 
-    closestFood = problem.heuristicInfo['orderedFood'][-1]
-
-    if position == closestFood:
-        problem.heuristicInfo['orderedFood'].pop()
-        problem.heuristicInfo['orderedFood'].sort(key=getdist)
+    if position in problem.heuristicInfo['orderedFood']: #If pacman goes over a node that contains food
+        problem.heuristicInfo['orderedFood'].remove(position) #we remove said node, since we have already reached this food
+        problem.heuristicInfo['orderedFood'].sort(key=getdist, reverse=True)
 
         foodCount = len(problem.heuristicInfo['orderedFood'])
-        
         if foodCount == 0:
             problem.heuristicInfo['orderedFood'] = [position]
 
-        closestFood = problem.heuristicInfo['orderedFood'][-1]
-
-    minDist = manhattanDistance(closestFood,position)  
+    closestFood = problem.heuristicInfo['orderedFood'][-1]
+    minDist = manhattanDistance(closestFood,position) #Pacman should be encouraged to go to the closest node
 
     return minDist
 
