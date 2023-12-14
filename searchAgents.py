@@ -494,8 +494,8 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         if len(foodList) == 0: #Checks if there is no food
             problem.heuristicInfo['orderedFood'] = [position]
 
-    if position in problem.heuristicInfo['orderedFood']: #If pacman goes over a node that contains food
-        problem.heuristicInfo['orderedFood'].remove(position) #we remove said node, since we have already reached this food
+    if position in problem.heuristicInfo['orderedFood']: #only reorder the foodlist when pacman touches food to reduce time
+        problem.heuristicInfo['orderedFood'].remove(position) #we remove the node of the touched food, because pacman doesn't have to reach it again
         problem.heuristicInfo['orderedFood'].sort(key=getdist, reverse=True)
 
         foodCount = len(problem.heuristicInfo['orderedFood'])
