@@ -301,7 +301,7 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        # state now contains position and a for now empty tuple which is going to record the visited corners
+        # state now contains position and a, for now empty, tuple which is going to record the visited corners
         return (self.startingPosition, ())
 
     def isGoalState(self, state: Any):
