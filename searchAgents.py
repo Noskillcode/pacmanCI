@@ -301,12 +301,14 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
+        # state now contains position and a for now empty tuple which is going to record the visited corners
         return (self.startingPosition, ())
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
+        # check if all corners are visited
         return len(state[1]) == len(self.corners)
     
     def getSuccessors(self, state: Any):
@@ -325,17 +327,20 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            ((x,y), cs) = state
+            ((x,y), visitedCorners) = state
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
 
+            # check if valid move
             if not self.walls[nextx][nexty]:
                 nextPos = (nextx, nexty)
+                
+                # check if nextPos is a corner, if so add to visitedCorners
                 if nextPos in self.corners: 
-                    if nextPos not in cs:
-                        cs = cs + (nextPos,)
-                nextState = (nextPos, cs)
-                successors.append( ( nextState, action, 1) )
+                    if nextPos not in visitedCorners:
+                        visitedCorners = visitedCorners + (nextPos,)
+                nextState = (nextPos, visitedCorners)
+                successors.append( (nextState, action, 1) )
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -370,25 +375,26 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    (pos, cs) = state
-    Cs = [c for c in corners if c not in cs]
-    num = len(Cs)
+    # Hueristic: Find the closest corner in manhattan distance, move pacman there, repeat till all corners are visited, then return the total distance travelled.
+    # This is basically a dumbed down version of our cornerProblem, ignoring the walls. 
+    # So pacman is encouraged to go to the closest corner, then the next closest corner, etc.
+    (pos, visitedCorners) = state
+    toVisitCorners = [c for c in corners if c not in visitedCorners]
+    num = len(toVisitCorners)
     totalDist = 0
-    for x in range(0, num):
+    for _ in range(num):
         smallestDist = 999999
         closestC = None
-        for c in Cs:
+        for c in toVisitCorners:
             dist = manhattanDistance(pos, c)
             if dist < smallestDist:
                 smallestDist = dist
                 closestC = c
-        Cs.remove(closestC)
+        toVisitCorners.remove(closestC)
         pos = closestC
         totalDist += smallestDist
 
     return totalDist
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
